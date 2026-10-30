@@ -1,0 +1,36 @@
+# Local development stack. Credentials are dev-only; ports bind to localhost so
+# nothing is reachable from the LAN.
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: photoqueue
+      POSTGRES_USER: photoqueue
+      POSTGRES_PASSWORD: photoqueue
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql   # Postgres 18 images keep PGDATA under this path
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U photoqueue -d photoqueue"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  # S3-compatible object storage (stands in for Cloudflare R2). RustFS replaces MinIO,
+  # whose public Docker images are no longer published.
+  storage:
+    image: rustfs/rustfs:1.0.4
+    environment:
+      RUSTFS_ACCESS_KEY: photoqueue
+      RUSTFS_SECRET_KEY: photoqueue-dev-secret
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "127.0.0.1:9000:9000"   # S3 API
+      - "127.0.0.1:9001:9001"   # web console
+    volumes:
+      - objdata:/data
+
+volumes:
+  pgdata:
+  objdata:

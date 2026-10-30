@@ -1,0 +1,8 @@
+# Defaults match docker-compose.yml. Override with SPRING_DATASOURCE_* env vars when deployed.
+spring:
+  application:
+    name: photoqueue
+  datasource:
+    url: jdbc:postgresql://localhost:5432/photoqueue
+    username: photoqueue
+    password: photoqueue
